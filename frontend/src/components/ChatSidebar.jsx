@@ -65,7 +65,7 @@ const ChatSidebar = ({ onSelectChat, selectedChatId }) => {
     } finally {
       setUserSearchLoading(false);
     }
-  }, [token, userSearchQuery]);
+  }, [token, API_URL, userSearchQuery]);
 
   const fetchContacts = useCallback(async () => {
     if (!token) return;
@@ -87,7 +87,7 @@ const ChatSidebar = ({ onSelectChat, selectedChatId }) => {
     } finally {
       setContactsLoading(false);
     }
-  }, [token]);
+  }, [token, API_URL]);
 
   const getChatDisplayName = (chat) => {
     if (!chat || !user?.id) return 'Loading...';

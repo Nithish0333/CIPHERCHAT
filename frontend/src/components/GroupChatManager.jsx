@@ -4,14 +4,13 @@ import { useAuth } from '../contexts/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const GroupChatManager = ({ show, onClose }) => {
-  const { createChat, chats } = useChat();
+  const { chats } = useChat();
   const { user } = useAuth();
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [userSearch, setUserSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: Basic info, 2: Add members, 3: Settings
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
@@ -22,10 +21,9 @@ const GroupChatManager = ({ show, onClose }) => {
     } else {
       setSearchResults([]);
     }
-  }, [userSearch]);
+  }, [userSearch, searchUsers]);
 
   const searchUsers = async () => {
-    setLoading(true);
     try {
       const token = localStorage.getItem('cipherchat_token');
       const response = await fetch(`${API_URL}/users/search?q=${encodeURIComponent(userSearch)}`, {
@@ -44,8 +42,6 @@ const GroupChatManager = ({ show, onClose }) => {
       }
     } catch (error) {
       console.error('Error searching users:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

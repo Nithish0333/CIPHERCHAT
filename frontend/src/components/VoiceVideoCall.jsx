@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useChat } from '../contexts/ChatContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -35,7 +34,7 @@ const VoiceVideoCall = ({ chat, show, onClose, callType = 'voice' }) => {
         clearInterval(callIntervalRef.current);
       }
     };
-  }, [show]);
+  }, [show, initializeCall, endCall]);
 
   useEffect(() => {
     if (callState === 'connected') {

@@ -5,7 +5,7 @@ import { useSocket } from '../contexts/SocketContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const EnhancedChatMain = () => {
-  const { messages, sendMessage, currentChat, typingUsers, editMessage, deleteMessage, addReaction, removeReaction, isChatLoading } = useChat();
+  const { messages, sendMessage, currentChat, typingUsers, editMessage, deleteMessage, removeReaction, isChatLoading } = useChat();
   const { user } = useAuth();
   const { emit } = useSocket();
   const [messageInput, setMessageInput] = useState('');
@@ -13,19 +13,10 @@ const EnhancedChatMain = () => {
   const [editingMessage, setEditingMessage] = useState(null);
   const [editText, setEditText] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadingFile, setUploadingFile] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [showGifPicker, setShowGifPicker] = useState(false);
-  const [showStickerPicker, setShowStickerPicker] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
-  const [forwardingMessage, setForwardingMessage] = useState(null);
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showInfoPanel, setShowInfoPanel] = useState(false);
   
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);

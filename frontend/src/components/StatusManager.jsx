@@ -22,7 +22,7 @@ const StatusManager = ({ show, onClose }) => {
     if (show) {
       fetchStatuses();
     }
-  }, [show]);
+  }, [show, fetchStatuses]);
 
   useEffect(() => {
     if (isViewingStatus) {
@@ -38,7 +38,7 @@ const StatusManager = ({ show, onClose }) => {
 
       return () => clearInterval(interval);
     }
-  }, [isViewingStatus, currentStatusIndex, statusDuration]);
+  }, [isViewingStatus, currentStatusIndex, statusDuration, handleNextStatus]);
 
   const fetchStatuses = async () => {
     try {
