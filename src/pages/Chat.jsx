@@ -14,14 +14,13 @@ import '../styles/icon-enhancements.css';
 
 const Chat = () => {
   const { user, logout } = useAuth();
-  const { fetchChats, currentChat, selectChat } = useChat();
+  const { currentChat, selectChat } = useChat();
   const [showSidebar, setShowSidebar] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
   const [showGroupManager, setShowGroupManager] = useState(false);
   const [showVoiceCall, setShowVoiceCall] = useState(false);
   const [showVideoCall, setShowVideoCall] = useState(false);
   const [showStatusManager, setShowStatusManager] = useState(false);
-  const [activeCall, setActiveCall] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
 
   // Close dropdown when clicking outside
