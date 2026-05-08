@@ -17,6 +17,10 @@ const EnhancedChatMain = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  // const [selectedFile, setSelectedFile] = useState(null);
+  // const [uploadingFile, setUploadingFile] = useState(false);
+  // const [forwardingMessage, setForwardingMessage] = useState(null);
   
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -122,7 +126,6 @@ const EnhancedChatMain = () => {
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setSelectedFile(file);
       // Handle file upload
       handleFileUpload(file);
     }
@@ -131,20 +134,14 @@ const EnhancedChatMain = () => {
   const handleFileUpload = async (file) => {
     if (!file || !currentChat) return;
 
-    setUploadingFile(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('chatId', currentChat._id);
-
-      const response = await fetch('http://localhost:5001/api/upload/file', {
+      // Handle file upload
+      const response = await fetch('/api/upload-file', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('cipherchat_token')}`,
-        },
         body: formData,
       });
-
       const data = await response.json();
 
       if (response.ok) {
@@ -157,8 +154,8 @@ const EnhancedChatMain = () => {
     } catch (error) {
       console.error('Error uploading file:', error);
     } finally {
-      setUploadingFile(false);
-      setSelectedFile(null);
+      // setUploadingFile(false);
+      // setSelectedFile(null);
     }
   };
 
@@ -178,7 +175,7 @@ const EnhancedChatMain = () => {
   };
 
   const handleForward = (message) => {
-    setForwardingMessage(message);
+    // setForwardingMessage(message);
     // Show forward modal or list
   };
 
