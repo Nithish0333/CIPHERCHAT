@@ -3,6 +3,37 @@
   command = "npm run build"
 
 [build.environment]
+  REACT_APP_SUPABASE_URL = "https://lchdpkhnywholgbyqwzj.supabase.co"
+  REACT_APP_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjaGRwa2hueXdob2xnYnlxd3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNTU3NDYsImV4cCI6MjA5MzYzMTc0Nn0.rvMuJo9-Gg1e6iramKDmb8DZNIXc7YFmj1omHsNMHJU"
+
+# Enable drag and drop for file uploads
+[build.environment]
+  NODE_VERSION = "18"
+
+[[headers]]
+  for = "/api/*"
+  [values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Handle SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-XSS-Protection = "1; mode=block"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[build.environment]
   NODE_VERSION = "18"
 
 [[redirects]]
