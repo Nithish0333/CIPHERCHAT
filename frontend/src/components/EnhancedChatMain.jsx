@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useChat } from '../contexts/ChatContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
+import ApiService from '../services/ApiService';
+import { toast } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const EnhancedChatMain = () => {
@@ -135,27 +137,19 @@ const EnhancedChatMain = () => {
     if (!file || !currentChat) return;
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      // Handle file upload
-      const response = await fetch('/api/upload-file', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
+      const data = await ApiService.uploadFile(file);
 
-      if (response.ok) {
-        await sendMessage('', 'file', {
-          fileUrl: data.data.fileUrl,
+      if (data.status === 'success') {
+        const fileType = file.type.startsWith('image/') ? 'image' : 'file';
+        await sendMessage('', fileType, {
+          fileUrl: data.data.url,
           fileName: file.name,
           fileSize: file.size,
         });
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-    } finally {
-      // setUploadingFile(false);
-      // setSelectedFile(null);
+      toast.error('Failed to upload file');
     }
   };
 

@@ -95,6 +95,18 @@ class ApiService {
     const response = await axiosInstance.get(`/messages/${chatId}`);
     return response.data;
   }
+
+  // Files
+  static async uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axiosInstance.post('/files', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
 }
 
 export default ApiService;

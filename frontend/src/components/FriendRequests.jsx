@@ -1,61 +1,52 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import ApiService from '../services/ApiService';
+import { useAuth } from '../contexts/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const FriendRequests = () => {
+  const { user } = useAuth();
   const [receivedRequests, setReceivedRequests] = useState([]);
   const [sentRequests, setSentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(new Set());
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
-
   const fetchRequests = useCallback(async () => {
     setLoading(true);
     setError('');
 
     try {
-      const token = localStorage.getItem('cipherchat_token');
-      const [receivedRes, sentRes] = await Promise.all([
-        axios.get(`${API_URL}/friends/requests/received`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        axios.get(`${API_URL}/friends/requests/sent`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
-
-      setReceivedRequests(receivedRes.data);
-      setSentRequests(sentRes.data);
+      const data = await ApiService.getFriendRequests();
+      if (data.status === 'success') {
+        const requests = data.data.friendRequests;
+        setReceivedRequests(requests.filter(req => req.receiver._id === user?._id && req.status === 'pending'));
+        setSentRequests(requests.filter(req => req.sender._id === user?._id && req.status === 'pending'));
+      }
     } catch (error) {
       console.error('Fetch requests error:', error);
       setError('Failed to fetch friend requests');
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, [user?._id]);
 
   useEffect(() => {
     fetchRequests();
   }, [fetchRequests]);
 
-  const acceptRequest = async (requestId) => {
+  const handleRequestAction = async (requestId, status) => {
     if (processing.has(requestId)) return;
 
     setProcessing(prev => new Set(prev).add(requestId));
 
     try {
-      const token = localStorage.getItem('cipherchat_token');
-      await axios.put(`${API_URL}/friends/requests/${requestId}/accept`, {}, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      await ApiService.updateFriendRequest(requestId, status);
 
       // Remove from received requests
       setReceivedRequests(prev => prev.filter(req => req._id !== requestId));
     } catch (error) {
-      console.error('Accept request error:', error);
-      setError('Failed to accept friend request');
+      console.error(`${status} request error:`, error);
+      setError(`Failed to ${status} friend request`);
     } finally {
       setProcessing(prev => {
         const newSet = new Set(prev);
@@ -65,30 +56,8 @@ const FriendRequests = () => {
     }
   };
 
-  const rejectRequest = async (requestId) => {
-    if (processing.has(requestId)) return;
-
-    setProcessing(prev => new Set(prev).add(requestId));
-
-    try {
-      const token = localStorage.getItem('cipherchat_token');
-      await axios.put(`${API_URL}/friends/requests/${requestId}/reject`, {}, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      // Remove from received requests
-      setReceivedRequests(prev => prev.filter(req => req._id !== requestId));
-    } catch (error) {
-      console.error('Reject request error:', error);
-      setError('Failed to reject friend request');
-    } finally {
-      setProcessing(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(requestId);
-        return newSet;
-      });
-    }
-  };
+  const acceptRequest = (requestId) => handleRequestAction(requestId, 'accepted');
+  const rejectRequest = (requestId) => handleRequestAction(requestId, 'rejected');
 
   return (
     <div className="friend-requests">

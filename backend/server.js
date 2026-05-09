@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 
 // Load env vars
@@ -24,12 +25,16 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+// Serve static files
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/chats', require('./routes/chatRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/friends', require('./routes/friendRoutes'));
+app.use('/api/files', require('./routes/fileRoutes'));
 
 app.get('/', (req, res) => {
   res.send('CipherChat API is running...');
