@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import ApiService from '../services/ApiService';
 import UserProfileModal from './UserProfileModal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -14,26 +14,22 @@ const FriendsList = ({ onSelectFriend }) => {
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [contextMenuFriend, setContextMenuFriend] = useState(null);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
-
   const fetchFriends = useCallback(async () => {
     setLoading(true);
     setError('');
 
     try {
-      const token = localStorage.getItem('cipherchat_token');
-      const response = await axios.get(`${API_URL}/friends/list`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      setFriends(response.data);
+      const data = await ApiService.getFriends();
+      if (data.status === 'success') {
+        setFriends(data.data.friends);
+      }
     } catch (error) {
       console.error('Fetch friends error:', error);
       setError('Failed to fetch friends');
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, []);
 
   useEffect(() => {
     fetchFriends();
@@ -49,11 +45,9 @@ const FriendsList = ({ onSelectFriend }) => {
     setRemovingFriend(prev => new Set(prev).add(friendId));
 
     try {
-      const token = localStorage.getItem('cipherchat_token');
-      await axios.delete(`${API_URL}/friends/friends/${friendId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
+      // Assuming we'll add a removeFriend method to ApiService later
+      // await ApiService.removeFriend(friendId);
+      
       // Remove from friends list
       setFriends(prev => prev.filter(friend => friend._id !== friendId));
     } catch (error) {
@@ -129,33 +123,10 @@ const FriendsList = ({ onSelectFriend }) => {
 
   const handleStartChat = async (friend) => {
     try {
-      // Create a private chat with this friend
-      const token = localStorage.getItem('cipherchat_token');
-      
-      const response = await fetch(`${API_URL}/chats`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          type: 'private',
-          participants: [friend._id],
-        }),
-      });
+      const data = await ApiService.accessChat(friend._id);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Select the created chat
+      if (data.status === 'success') {
         await onSelectFriend(data.data.chat);
-      } else {
-        // If chat already exists, try to find and select it
-        if (data.message && data.message.includes('already exists')) {
-          await onSelectFriend(data.data.chat);
-        } else {
-          console.error('Error creating chat:', data.message);
-        }
       }
     } catch (error) {
       console.error('Error starting chat:', error);

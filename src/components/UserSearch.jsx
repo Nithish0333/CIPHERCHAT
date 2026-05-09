@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import ApiService from '../services/ApiService';
 import UserProfileModal from './UserProfileModal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -11,8 +11,6 @@ const UserSearch = () => {
   const [sendingRequests, setSendingRequests] = useState(new Set());
   const [selectedUser, setSelectedUser] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
-
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
   // Search users
   useEffect(() => {
@@ -26,14 +24,10 @@ const UserSearch = () => {
       setError('');
 
       try {
-        const token = localStorage.getItem('cipherchat_token');
-        const response = await axios.get(`${API_URL}/friends/search?query=${searchQuery}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        setSearchResults(response.data);
+        const data = await ApiService.getUsers(searchQuery);
+        if (data.status === 'success') {
+          setSearchResults(data.data.users);
+        }
       } catch (error) {
         console.error('Search error:', error);
         setError('Failed to search users');
@@ -45,7 +39,7 @@ const UserSearch = () => {
 
     const timeoutId = setTimeout(searchUsers, 300);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, API_URL]);
+  }, [searchQuery]);
 
   // Send friend request
   const handleSendFriendRequest = async (receiverId) => {
@@ -54,15 +48,7 @@ const UserSearch = () => {
     setSendingRequests(prev => new Set(prev).add(receiverId));
 
     try {
-      const token = localStorage.getItem('cipherchat_token');
-      await axios.post(`${API_URL}/friends/request`, 
-        { receiverId },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
+      await ApiService.sendFriendRequest(receiverId);
 
       // Remove from search results after sending request
       setSearchResults(prev => prev.filter(user => user._id !== receiverId));
